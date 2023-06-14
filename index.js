@@ -30,7 +30,7 @@ let nextShortUrlId = 1;
 
 // Función para verificar la validez de una URL
 function isValidUrl(url) {
-  const urlPattern = /^(https?:\/\/)?([\w.]+)\.([a-z]{2,6}\.?)(\/[\w.]*)*\/?$/i;
+  const urlPattern = /^(https?:\/\/)?([\w.-]+)\.([a-z]{2,6}\.?)(\/[\w.-]*)*\/?$/i;
   return urlPattern.test(url);
 }
 
@@ -44,7 +44,7 @@ app.post('/api/shorturl', (req, res) => {
   }
 
   // Verificar si la URL ya existe en la lista
-  const existingUrl = urls.find((url) => url.original_url === url);
+  const existingUrl = urls.find((urlObj) => urlObj.original_url === url);
   if (existingUrl) {
     return res.json({
       original_url: existingUrl.original_url,
@@ -81,9 +81,9 @@ app.get('/api/shorturl/:shortUrl', (req, res) => {
   const { shortUrl } = req.params;
 
   // Buscar la URL en la lista
-  const url = urls.find((u) => u.short_url === parseInt(shortUrl));
+  const url = urls.find((urlObj) => urlObj.short_url === parseInt(shortUrl));
   if (!url) {
-    return res.sendStatus(404);
+    return res.json({ error: 'invalid url' });
   }
 
   // Redireccionar a la URL original
