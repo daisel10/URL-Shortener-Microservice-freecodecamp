@@ -28,18 +28,15 @@ app.get('/api/hello', function(req, res) {
 let urls = [];
 let nextShortUrlId = 1;
 
-// Función para verificar la validez de una URL
-function isValidUrl(url) {
-  const urlPattern = /^(https?:\/\/)?([\w.-]+)\.([a-z]{2,6}\.?)(\/[\w.-]*)*\/?$/i;
-  return urlPattern.test(url);
-}
-
 // Ruta para acortar una URL
 app.post('/api/shorturl', (req, res) => {
   const { url } = req.body;
 
-  // Verificar si la URL es válida
-  if (!isValidUrl(url)) {
+  // Verificar si la URL es válida utilizando new URL
+  try {
+    const pru = new URL(url);
+    console.log(pru)
+  } catch (error) {
     return res.json({ error: 'invalid url' });
   }
 
@@ -89,7 +86,6 @@ app.get('/api/shorturl/:shortUrl', (req, res) => {
   // Redireccionar a la URL original
   res.redirect(url.original_url);
 });
-
 
 app.listen(port, function() {
   console.log(`Listening on port ${port}`);
