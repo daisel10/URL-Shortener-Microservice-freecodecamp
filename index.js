@@ -3,15 +3,18 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const dns = require('dns');
 const cors = require('cors');
-const app = express();
+const validUrl = require('valid-url');
+const isUrl = require('is-url');
 
+const app = express();
+app.use(cors());
 // Basic Configuration
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-app.use(cors());
+
 
 app.use('/public', express.static(`${process.cwd()}/public`));
 
@@ -32,19 +35,21 @@ let nextShortUrlId = 1;
 app.post('/api/shorturl', (req, res) => {
   const { url } = req.body;
 
-  // Verificar si la URL es válida utilizando new URL
-  try {
-    const pru = new URL(url);
-    console.log(pru)
-  } catch (error) {
+  const urlRegex = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/;
+
+  // Verificar si la URL es válida utilizando try-catch
+  if (!validUrl.isUri(url) || !urlRegex.test(url)) {
+    return res.json({ error: 'invalid url' });
+  }
+  if (!isUrl(url)) {
     return res.json({ error: 'invalid url' });
   }
 
-  // Verificar si la URL ya existe en la lista
+  // Modificación: Verificar si la URL ya existe en la lista
   const existingUrl = urls.find((urlObj) => urlObj.original_url === url);
   if (existingUrl) {
     return res.json({
-      original_url: existingUrl.original_url,
+      original_url:`${existingUrl.original_url}`,
       short_url: existingUrl.short_url
     });
   }
